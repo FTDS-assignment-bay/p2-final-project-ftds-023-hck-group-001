@@ -1,0 +1,22 @@
+CREATE TABLE employees (
+    "Employee_ID" SERIAL PRIMARY KEY,
+    "Department" VARCHAR(100),
+    "Gender" VARCHAR(10),
+    "Age" INT,
+    "Job_Title" VARCHAR(100),
+    "Hire_Date" TIMESTAMP,
+    "Years_At_Company" INT,
+    "Education_Level" VARCHAR(50),
+    "Performance_Score" INT,
+    "Monthly_Salary" NUMERIC(10, 2),
+    "Work_Hours_Per_Week" INT,
+    "Projects_Handled" INT,
+    "Overtime_Hours" INT,
+    "Sick_Days" INT,
+    "Remote_Work_Frequency" INT,
+    "Team_Size" INT,
+    "Training_Hours" INT,
+    "Promotions" INT,
+    "Employee_Satisfaction_Score" NUMERIC(5, 2),
+    "Resigned" BOOLEAN
+);
