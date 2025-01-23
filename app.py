@@ -27,6 +27,9 @@ def eda_page():
 
     # Gender Distribution (Pie Chart)
     st.header("Gender Distribution")
+    st.markdown(
+        """There are 3 genders in this dataset where male & female dominate with the same percentage. Other gender accounts for only 4% of the total distribution."""
+    )
     gender_counts = data['Gender'].value_counts()
     fig1 = px.pie(
         names=gender_counts.index,
@@ -38,6 +41,9 @@ def eda_page():
 
     # Remote Work Frequency by Department (Treemap)
     st.header("Remote Work Frequency by Department")
+    st.markdown(
+        """The department with the highest remote job frequency is engineering, followed by finance and operations. On the other hand, HR, IT, and sales have the lowest remote job frequencies. This is due to the workload differences, as sales often require face-to-face interaction."""
+    )
     remote_work_dept = data.groupby('Department')['Remote_Work_Frequency'].mean().reset_index()
     fig2 = px.treemap(
         remote_work_dept,
@@ -51,6 +57,9 @@ def eda_page():
 
     # Age Distribution (Histogram)
     st.header("Age Distribution")
+    st.markdown(
+        """Workers in this company are predominantly aged between 25-55. Employees over the age of 55 are often retired due to perceived lower productivity, but some are rehired for their expertise."""
+    )
     fig3 = px.histogram(
         data,
         x='Age',
@@ -61,32 +70,95 @@ def eda_page():
     )
     st.plotly_chart(fig3)
 
-    # Perform PCA with 3 components
+    # Employee Satisfaction Over Years (Line Chart)
+    st.header("Trend of Employee Satisfaction Over the Years")
+    st.markdown(
+        """From the trend we can see that cluster 1 has the highest satisfaction overall, while cluster 3 has the lowest. Cluster 2 & 0 have similar average satisfaction scores within those years."""
+    )
+    data['Hire_Year'] = pd.to_datetime(data['Hire_Date'], errors='coerce').dt.year
+    trend_data = data.groupby(['Hire_Year', 'cluster'])['Employee_Satisfaction_Score'].mean().reset_index()
+    trend_data['cluster'] = trend_data['cluster'].astype(str)
+    fig4 = px.line(
+        trend_data,
+        x='Hire_Year',
+        y='Employee_Satisfaction_Score',
+        color='cluster',
+        markers=True,
+        title="Employee Satisfaction Over the Years"
+    )
+    st.plotly_chart(fig4)
 
-    data1 = data.copy()
-    data1 = data1.drop('cluster', axis=1)
+    # Average Performance Score by Cluster (Bar Chart)
+    st.header("Average Performance Score by Cluster")
+    st.markdown(
+        """As we can see, cluster 0 has the highest performance score with little difference to cluster 1. Cluster 3 has the lowest performance score with little difference to cluster 2."""
+    )
+    performance_data = data.groupby('cluster')['Performance_Score'].mean().reset_index()
+    fig5 = px.bar(
+        performance_data,
+        x='cluster',
+        y='Performance_Score',
+        title="Average Performance Score by Cluster",
+        color='Performance_Score',
+        color_continuous_scale='viridis'
+    )
+    st.plotly_chart(fig5)
+
+    # Monthly Salary by Cluster and Gender (Stacked Bar Chart)
+    st.header("Monthly Salary by Cluster and Gender")
+    st.markdown(
+        """In every existing cluster, female employees have higher monthly income compared to their male counterparts when considering total money earned by gender."""
+    )
+    salary_gender_data = data.groupby(['cluster', 'Gender'])['Monthly_Salary'].sum().unstack()
+    fig6 = px.bar(
+        salary_gender_data,
+        barmode='stack',
+        title="Monthly Salary by Cluster and Gender",
+        labels={'value': 'Monthly Salary', 'cluster': 'Cluster'},
+    )
+    st.plotly_chart(fig6)
+
+    # Cluster-Wise Averages for Key Metrics
+    st.header("Cluster-Wise Averages for Key Metrics")
+    st.markdown(
+        """1. **Average Overtime Hours**: Cluster 3 has the highest overtime hours, while cluster 2 has the lowest.
+        2. **Average Projects Handled**: All clusters have a similar number of projects handled on average.
+        3. **Average Remote Work Frequency**: Clusters 1 and 3 have lower remote work frequencies compared to clusters 0 and 2.
+        4. **Average Work Hours Per Week**: Cluster 0 has the shortest work hours per week, while cluster 1 has the longest. Cluster 3 has slightly longer hours than cluster 2."""
+    )
+    metrics = ['Overtime_Hours', 'Projects_Handled', 'Remote_Work_Frequency', 'Work_Hours_Per_Week']
+    clustered_metrics = data.groupby('cluster')[metrics].mean().reset_index()
+    selected_metric = st.selectbox("Select a Metric to View", metrics)
+    fig7 = px.bar(
+        clustered_metrics,
+        x='cluster',
+        y=selected_metric,
+        title=f'Average {selected_metric.replace("_", " ")}',
+        labels={'cluster': 'Cluster', selected_metric: f'Avg {selected_metric.replace("_", " ")}'},
+        color='cluster',
+        color_continuous_scale='viridis'
+    )
+    st.plotly_chart(fig7)
+
+    # 3D Cluster Visualization
+    st.header("3D Cluster Visualization")
+    data1 = data.copy().drop('cluster', axis=1)
     scaled_data = scaler.transform(data1.select_dtypes(include=['float64', 'int64']))
     transformed_data1 = pca_3d.transform(scaled_data)
-
-    # Create DataFrame for PCA results
+    
     pca_df = pd.DataFrame(transformed_data1, columns=['PCA1', 'PCA2', 'PCA3'])
-    pca_df['Cluster'] = data['cluster']  # Assuming `data1` contains the cluster labels
-
-    # 3D Scatter Plot using Plotly
-    st.header("3D Cluster Visualization")
+    pca_df['Cluster'] = data['cluster']
 
     fig_3d = px.scatter_3d(
-        pca_df, 
-        x='PCA1', 
-        y='PCA2', 
-        z='PCA3', 
-        color='Cluster', 
+        pca_df,
+        x='PCA1',
+        y='PCA2',
+        z='PCA3',
+        color='Cluster',
         color_continuous_scale='Viridis',
         title='3D Cluster Visualization',
         labels={'Cluster': 'Cluster Group'}
     )
-
-    # Customize the appearance
     fig_3d.update_traces(marker=dict(size=5, opacity=0.8))
     fig_3d.update_layout(
         scene=dict(
@@ -95,8 +167,6 @@ def eda_page():
             zaxis_title='PCA Component 3'
         )
     )
-
-    # Display plot in Streamlit
     st.plotly_chart(fig_3d)
 
 def predict_page():
@@ -115,7 +185,7 @@ def predict_page():
 
     with st.form(key='form_parameters'):
         # Define input fields for all columns
-        employee_id = st.number_input("Employee ID", min_value=1, value=1)
+        employee_name = st.text_input("Employee Name", value="John Doe")
         department_input = st.selectbox("Department", options=list(data["Department"].unique()))
         gender_input = st.selectbox("Gender", options=list(data["Gender"].unique()))
         age_input = st.number_input("Age", min_value=18, max_value=65, value=30)
@@ -142,7 +212,7 @@ def predict_page():
     if submit:
         # Create a dataframe for the new input
         data_new = pd.DataFrame({
-            "Employee_ID": [employee_id],
+            "Employee_Name": [employee_name],
             "Department": [department_input],
             "Gender": [gender_input],
             "Age": [age_input],
@@ -171,7 +241,7 @@ def predict_page():
         # Predict the cluster for the new data
         cluster_label = kmeans_model.predict(transformed_data)
         st.subheader('Prediction Result:')
-        st.write(f'The predicted cluster for the input data is: Cluster {cluster_label[0]}')
+        st.write(f'The predicted cluster for {employee_name} is: Cluster {cluster_label[0]}')
 
         # Display tailored action plan based on the cluster
         st.subheader('Tailored Action Plan:')
