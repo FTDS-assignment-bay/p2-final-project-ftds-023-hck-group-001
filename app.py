@@ -18,6 +18,9 @@ with open('scaler.pkl', 'rb') as f:
 with open('pca.pkl', 'rb') as f:
     pca = pickle.load(f)
 
+with open('pca_3d.pkl', 'rb') as f:
+    pca_3d = pickle.load(f)
+
 def eda_page():
     # Title
     st.title("Exploratory Data Analysis (EDA)")
@@ -57,6 +60,44 @@ def eda_page():
         marginal="box"
     )
     st.plotly_chart(fig3)
+
+    # Perform PCA with 3 components
+
+    data1 = data.copy()
+    data1 = data1.drop('cluster', axis=1)
+    scaled_data = scaler.transform(data1.select_dtypes(include=['float64', 'int64']))
+    transformed_data1 = pca_3d.transform(scaled_data)
+
+    # Create DataFrame for PCA results
+    pca_df = pd.DataFrame(transformed_data1, columns=['PCA1', 'PCA2', 'PCA3'])
+    pca_df['Cluster'] = data['cluster']  # Assuming `data1` contains the cluster labels
+
+    # 3D Scatter Plot using Plotly
+    st.header("3D Cluster Visualization")
+
+    fig_3d = px.scatter_3d(
+        pca_df, 
+        x='PCA1', 
+        y='PCA2', 
+        z='PCA3', 
+        color='Cluster', 
+        color_continuous_scale='Viridis',
+        title='3D Cluster Visualization',
+        labels={'Cluster': 'Cluster Group'}
+    )
+
+    # Customize the appearance
+    fig_3d.update_traces(marker=dict(size=5, opacity=0.8))
+    fig_3d.update_layout(
+        scene=dict(
+            xaxis_title='PCA Component 1',
+            yaxis_title='PCA Component 2',
+            zaxis_title='PCA Component 3'
+        )
+    )
+
+    # Display plot in Streamlit
+    st.plotly_chart(fig_3d)
 
 def predict_page():
     # Title and description
