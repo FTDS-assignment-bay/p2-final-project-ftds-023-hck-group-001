@@ -56,6 +56,7 @@ We have successfully created a Clustering Algorithm that can divide the group ev
 ## Thank You For Visiting!!
 
 📬 Connect with us:
+
 Ayman Baswedan as Data Engineer
 💼 Linkedin: https://www.linkedin.com/in/ayman-baswedan-b9a664326/ 
 
