@@ -14,9 +14,9 @@ Description: This is an employee performance dataset that we gathered from Kaggl
 ## 🔧 Technologies Used
 Programming Language: Python
 
-Libraries: Pandas, Seaborn, Matplotlib, NumPy, Airflow, PythonGX, elasticsearch, Scipy, ScikitLearn
+Libraries: Pandas, Seaborn, Matplotlib, NumPy, Airflow, elasticsearch, Scipy, ScikitLearn, streamlit, Yellowbrick Cluster, json, pickle
 
-Tools: Jupyter Notebook, SQL, Docker, ElasticNet, Kibana, Airflow
+Tools: Jupyter Notebook, SQL, Docker, ElasticNet, Airflow, Hugging Face
 
 ## 🚀 Workflow
 ### 1️ Data Collecting
