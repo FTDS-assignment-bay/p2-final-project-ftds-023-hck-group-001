@@ -1,0 +1,8 @@
+streamlit>=1.41.1
+pandas
+numpy
+plotly
+scikit-learn
+typing-extensions>=4.10.0
+attrs>=22.2.0
+tenacity>=8.1.0,<10
